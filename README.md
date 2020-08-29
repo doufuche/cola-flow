@@ -1,5 +1,5 @@
 # cola-flow
-站在前辈的肩膀上眺望远方，cola框架https://github.com/alibaba/COLA
+站在前辈的肩膀上眺望远方，cola框架https://github.com/alibaba/COLA  
 本代碼庫是在cola框架基礎上實現的流程編排引擎和組件，目前實現了基于cola2.0的版本，後續還會產出基于cola3的版本；
 
 簡單描述下背景
