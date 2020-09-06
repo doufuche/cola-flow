@@ -1,4 +1,4 @@
-package com.github.cola.flow.client.event;
+package com.github.cola.flow.client.baseevent;
 
 import lombok.Data;
 
@@ -10,7 +10,7 @@ import lombok.Data;
  */
 @Deprecated
 @Data
-public class StartEvent extends FlowFlowBaseEvent {
+public class StartEvent extends FlowBaseEvent {
 
     private String startParameter="start";
 

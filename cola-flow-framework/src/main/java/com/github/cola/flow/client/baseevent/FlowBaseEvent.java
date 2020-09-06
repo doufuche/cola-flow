@@ -1,4 +1,4 @@
-package com.github.cola.flow.client.event;
+package com.github.cola.flow.client.baseevent;
 
 import com.alibaba.cola.event.DomainEventI;
 import com.github.cola.flow.client.constants.Constants;
@@ -14,7 +14,7 @@ import java.util.Map;
  *
  * @author xihadoufuche@aliyun.com
  */
-public class FlowFlowBaseEvent<E extends FlowFlowBaseEvent> implements DomainEventI {
+public class FlowBaseEvent<E extends FlowBaseEvent> implements DomainEventI {
     /**
      * 业务ID
      */

@@ -1,16 +1,16 @@
-package com.github.cola.flow.client.dto.domainmodel;
+package com.github.cola.flow.client.dto.domainevent;
 
-import com.alibaba.cola.dto.Command;
+import com.alibaba.cola.event.DomainEventI;
 import lombok.Data;
 
 /**
  * Project Name: cola-flow
- * Desc: 节点状态插入或更新cmd
+ * Desc: 查询该业务暂停时保存的eventFlow信息
  *
  * @author xihadoufuche@aliyun.com
  */
 @Data
-public class EventStateSuccessUpdateCmd extends Command {
+public class EventFlowInfoBySuspendQryEvent implements DomainEventI {
     /**
      * 业务id
      */

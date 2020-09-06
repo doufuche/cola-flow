@@ -1,10 +1,10 @@
-package com.github.cola.flow.client.event;
+package com.github.cola.flow.client.baseevent;
 
 import com.github.cola.flow.client.api.ColaFlowServiceI;
 import com.github.cola.flow.client.constants.Constants;
-import com.github.cola.flow.client.dto.domainmodel.*;
+import com.github.cola.flow.client.dto.domainevent.*;
 import com.github.cola.flow.client.dto.event.Event;
-import com.alibaba.cola.command.CommandBusI;
+import com.alibaba.cola.event.EventBusI;
 import com.alibaba.cola.common.ApplicationContextHelper;
 import com.alibaba.cola.dto.Response;
 import com.alibaba.cola.event.EventBus;
@@ -13,9 +13,9 @@ import com.alibaba.cola.event.EventI;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 /** .
  * Project Name: cola-flow
@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
-public abstract class BaseEventFlowExecutor<R extends Response, E extends FlowFlowBaseEvent> implements EventHandlerI {
+public abstract class BaseEventFlowExecutor<R extends Response, E extends FlowBaseEvent> implements EventHandlerI {
 
     /**
      *
@@ -36,7 +36,7 @@ public abstract class BaseEventFlowExecutor<R extends Response, E extends FlowFl
      *
      */
     @Autowired
-    private CommandBusI commandBus;
+    private EventBusI eventBusI;
     /**
      *
      */
@@ -59,12 +59,12 @@ public abstract class BaseEventFlowExecutor<R extends Response, E extends FlowFl
         //add traceLog
         traceLogEventHandler(bizId, eventName, TraceLogEvent.EVENT_START);
 
-        if (StringUtils.isBlank(eventName)) {
+        if (StringUtils.isEmpty(eventName)) {
             log.error("eventName is null. bizId:{}", bizId);
             throw new RuntimeException("eventName is null. bizId:" + bizId);
         }
 
-        //check the event is completed
+        //check the baseevent is completed
         eventStateFinishCheck(eventName, bizId);
 
         //check bizId state suspend or cancel
@@ -72,10 +72,10 @@ public abstract class BaseEventFlowExecutor<R extends Response, E extends FlowFl
             return response;
         }
 
-        log.info("event start,bizId:{},eventName:{}", sourceEvent.getBizId(), eventName);
+        log.info("baseevent start,bizId:{},eventName:{}", sourceEvent.getBizId(), eventName);
 
         response = execute((E) sourceEvent);
-        log.info("event end,bizId:{},response:{}", sourceEvent.getBizId(), gson.toJson(response));
+        log.info("baseevent end,bizId:{},response:{}", sourceEvent.getBizId(), gson.toJson(response));
             //add traceLog
         traceLogEventHandler(bizId, eventName, TraceLogEvent.EVENT_FINISH);
 
@@ -86,8 +86,8 @@ public abstract class BaseEventFlowExecutor<R extends Response, E extends FlowFl
             //eventFlowDeleteCmd
             eventFlowDelete(eventName, bizId);
         } else {
-            log.warn("this event fail!,bizId:{},eventName:{},response:{}", bizId, eventName, response);
-            throw new RuntimeException("this event fail!,bizId:" + bizId + ",eventName:" + eventName + ", response:"+ response);
+            log.warn("this baseevent fail!,bizId:{},eventName:{},response:{}", bizId, eventName, response);
+            throw new RuntimeException("this baseevent fail!,bizId:" + bizId + ",eventName:" + eventName + ", response:"+ response);
         }
 
         log.info("current eventListener translate ok!, bizId:{}, eventName:{}", sourceEvent.getBizId(), eventName);
@@ -117,9 +117,9 @@ public abstract class BaseEventFlowExecutor<R extends Response, E extends FlowFl
      * @return
      */
     private boolean checkBizCancelled(final R response, final String eventName, final Long bizId) {
-        BizCancelledQry bizCancelledQry = new BizCancelledQry();
-        bizCancelledQry.setBizId(bizId.toString());
-        R bizCancelQryResponse = (R) commandBus.send(bizCancelledQry);
+        BizCancelledQryEvent bizCancelledQryEvent = new BizCancelledQryEvent();
+        bizCancelledQryEvent.setBizId(bizId.toString());
+        R bizCancelQryResponse = (R) eventBusI.fire(bizCancelledQryEvent);
         if (bizCancelQryResponse != null && bizCancelQryResponse.isSuccess()) {
             log.warn("{} Consumer execute redirect finished. bizId:{}", eventName, bizId);
             bizCanceledHandler(bizId);
@@ -146,7 +146,7 @@ public abstract class BaseEventFlowExecutor<R extends Response, E extends FlowFl
     /**
      * event节点的执行过程，添加日志和打点
      * @param bizId business id
-     * @param eventName event name
+     * @param eventName baseevent name
      */
     private void traceLogEventHandler(final Long bizId, final String eventName, final String type) {
         TraceLogEvent traceLogEvent = new TraceLogEvent();
@@ -163,10 +163,10 @@ public abstract class BaseEventFlowExecutor<R extends Response, E extends FlowFl
      * @param bizId
      */
     private void eventStateFinishCheck(final String eventName, final Long bizId) {
-        EventStateFinishCheckQry eventStateCheckFinishQry = new EventStateFinishCheckQry();
+        EventStateFinishCheckQryEvent eventStateCheckFinishQry = new EventStateFinishCheckQryEvent();
         eventStateCheckFinishQry.setBizId(bizId.toString());
         eventStateCheckFinishQry.setEventName(eventName);
-        Response eventStateCheckFinishResponse = commandBus.send(eventStateCheckFinishQry);
+        Response eventStateCheckFinishResponse = eventBusI.fire(eventStateCheckFinishQry);
         if (eventStateCheckFinishResponse != null && eventStateCheckFinishResponse.isSuccess()){
             //eventFlowDeleteCmd by bizId and node
             eventFlowDelete(eventName, bizId);
@@ -179,10 +179,10 @@ public abstract class BaseEventFlowExecutor<R extends Response, E extends FlowFl
      * @param bizId
      */
     private void eventFlowDelete(final String eventName, final Long bizId) {
-        EventFlowDeleteCmd eventFlowDeleteCmd = new EventFlowDeleteCmd();
-        eventFlowDeleteCmd.setBizId(bizId.toString());
-        eventFlowDeleteCmd.setEventName(eventName);
-        R eventFlowDeleteResponse = (R) commandBus.send(eventFlowDeleteCmd);
+        EventFlowDeleteEvent eventFlowDeleteEvent = new EventFlowDeleteEvent();
+        eventFlowDeleteEvent.setBizId(bizId.toString());
+        eventFlowDeleteEvent.setEventName(eventName);
+        R eventFlowDeleteResponse = (R) eventBusI.fire(eventFlowDeleteEvent);
 
     }
 
@@ -192,10 +192,10 @@ public abstract class BaseEventFlowExecutor<R extends Response, E extends FlowFl
      * @param bizId
      */
     private void eventSuccessUpdate(final String eventName, final Long bizId) {
-        EventStateSuccessUpdateCmd eventStateOkInsertUpdateCmd = new EventStateSuccessUpdateCmd();
+        EventStateSuccessUpdateEvent eventStateOkInsertUpdateCmd = new EventStateSuccessUpdateEvent();
         eventStateOkInsertUpdateCmd.setBizId(bizId.toString());
         eventStateOkInsertUpdateCmd.setEventName(eventName);
-        R eventStateOkResponse = (R) commandBus.send(eventStateOkInsertUpdateCmd);
+        R eventStateOkResponse = (R) eventBusI.fire(eventStateOkInsertUpdateCmd);
         if (eventStateOkResponse==null || !eventStateOkResponse.isSuccess()){
             log.error("eventStateOkInsertUpdateCmd error!, bizId:{}, eventName:{}", bizId, eventName);
             throw new RuntimeException("eventStateOkInsertUpdateCmd error!, bizId:" + bizId + ", eventName:" + eventName);
@@ -209,24 +209,24 @@ public abstract class BaseEventFlowExecutor<R extends Response, E extends FlowFl
      * @param bizId
      */
     private void eventFlowErrorInsert(final Event event, final String eventName, final Long bizId) {
-        EventFlowErrorInsertCmd eventFlowErrorInsertCmd = new EventFlowErrorInsertCmd();
-        eventFlowErrorInsertCmd.setBizId(bizId.toString());
+        EventFlowErrorInsertEvent eventFlowErrorInsertEvent = new EventFlowErrorInsertEvent();
+        eventFlowErrorInsertEvent.setBizId(bizId.toString());
         String eventsJson = gson.toJson(event);
-        eventFlowErrorInsertCmd.setFlowInfo(eventsJson);
-        eventFlowErrorInsertCmd.setEventName(eventName);
-        eventFlowErrorInsertCmd.setTraceFlowId(event.getTraceFlowId());
+        eventFlowErrorInsertEvent.setFlowInfo(eventsJson);
+        eventFlowErrorInsertEvent.setEventName(eventName);
+        eventFlowErrorInsertEvent.setTraceFlowId(event.getTraceFlowId());
         if (isSuspendByEventName(eventName)){
-            eventFlowErrorInsertCmd.setSuspendEvent(true);
+            eventFlowErrorInsertEvent.setSuspendEvent(true);
         }
-        R eventFlowErrorInsertResponse = (R) commandBus.send(eventFlowErrorInsertCmd);
+        R eventFlowErrorInsertResponse = (R) eventBusI.fire(eventFlowErrorInsertEvent);
         if (eventFlowErrorInsertResponse == null || !eventFlowErrorInsertResponse.isSuccess()){
-            log.error("eventFlowErrorInsertCmd error!, bizId:{}, eventName:{}", bizId, eventName);
-            throw new RuntimeException("eventFlowErrorInsertCmd error!, bizId:" + bizId + ", eventName:" + eventName);
+            log.error("eventFlowErrorInsertEvent error!, bizId:{}, eventName:{}", bizId, eventName);
+            throw new RuntimeException("eventFlowErrorInsertEvent error!, bizId:" + bizId + ", eventName:" + eventName);
         }
     }
 
     /**
-     * event execute
+     * baseevent execute
      * @param event 节点
      * @return Response
      */

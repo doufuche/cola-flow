@@ -1,6 +1,6 @@
-package com.github.cola.flow.client.dto.domainmodel;
+package com.github.cola.flow.client.dto.domainevent;
 
-import com.alibaba.cola.dto.Command;
+import com.alibaba.cola.event.DomainEventI;
 import lombok.Data;
 
 /**
@@ -10,7 +10,7 @@ import lombok.Data;
  * @author xihadoufuche@aliyun.com
  */
 @Data
-public class EventFlowErrorInsertCmd extends Command {
+public class EventFlowErrorInsertEvent implements DomainEventI {
     /**
      * 业务id
      */

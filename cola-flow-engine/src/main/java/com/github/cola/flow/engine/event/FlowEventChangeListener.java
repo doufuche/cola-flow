@@ -1,7 +1,7 @@
 package com.github.cola.flow.engine.event;
 
 import com.github.cola.flow.client.dto.event.EventEntity;
-import com.github.cola.flow.client.event.FlowFlowBaseEvent;
+import com.github.cola.flow.client.baseevent.FlowBaseEvent;
 
 import java.util.List;
 
@@ -11,7 +11,7 @@ import java.util.List;
  *
  * @author xihadoufuche@aliyun.com
  */
-public interface FlowEventChangeListener<ET extends EventEntity, E extends FlowFlowBaseEvent> {
+public interface FlowEventChangeListener<ET extends EventEntity, E extends FlowBaseEvent> {
 
     /**
      * 事件感知

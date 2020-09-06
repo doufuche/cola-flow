@@ -1,4 +1,4 @@
-package com.github.cola.flow.client.event;
+package com.github.cola.flow.client.baseevent;
 
 /**
  * Project Name: cola-flow

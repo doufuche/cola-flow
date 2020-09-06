@@ -1,16 +1,16 @@
-package com.github.cola.flow.client.dto.domainmodel;
+package com.github.cola.flow.client.dto.domainevent;
 
-import com.alibaba.cola.dto.Command;
+import com.alibaba.cola.event.DomainEventI;
 import lombok.Data;
 
 /**
  * Project Name: cola-flow
- * Desc: 删除该业务id的流程信息
+ * Desc: 节点状态插入或更新cmd
  *
  * @author xihadoufuche@aliyun.com
  */
 @Data
-public class EventFlowDeleteCmd extends Command {
+public class EventStateSuccessUpdateEvent implements DomainEventI {
     /**
      * 业务id
      */
@@ -19,4 +19,5 @@ public class EventFlowDeleteCmd extends Command {
      * 流程节点名
      */
     private String eventName;
+
 }

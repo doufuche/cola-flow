@@ -1,4 +1,4 @@
-package com.github.cola.flow.client.event;
+package com.github.cola.flow.client.dto.domainevent;
 
 
 import com.alibaba.cola.event.DomainEventI;

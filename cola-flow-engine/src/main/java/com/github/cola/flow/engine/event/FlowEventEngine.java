@@ -1,6 +1,6 @@
 package com.github.cola.flow.engine.event;
 
-import com.github.cola.flow.client.event.FlowFlowBaseEvent;
+import com.github.cola.flow.client.baseevent.FlowBaseEvent;
 import com.github.cola.flow.engine.event.tree.EventTreeConvert;
 import com.github.cola.flow.engine.event.tree.FlowEventTreeNode;
 import com.github.cola.flow.engine.event.tree.ManyFlowEventTreeNode;
@@ -23,7 +23,7 @@ import java.util.Map;
  *
  * @author xihadoufuche@aliyun.com
  */
-public class FlowEventEngine<ET extends EventEntity, C extends FlowFlowBaseEvent> {
+public class FlowEventEngine<ET extends EventEntity, C extends FlowBaseEvent> {
     static GsonBuilder gsonBuilder = new GsonBuilder();
 
     /**
@@ -40,7 +40,7 @@ public class FlowEventEngine<ET extends EventEntity, C extends FlowFlowBaseEvent
 
     /**
      * Continue the process from the pause node specified by the input parameter
-     * @param event event
+     * @param event baseevent
      * @throws Exception exception
      */
     public static void push(final Event event) throws Exception {
@@ -75,7 +75,7 @@ public class FlowEventEngine<ET extends EventEntity, C extends FlowFlowBaseEvent
      * @param text
      * @return
      */
-    static Event jsonToEvent(String text, Map parameterMap, Map<String,String> eventClassMap, Map eventMap, FlowFlowBaseEvent startEvent) {
+    static Event jsonToEvent(String text, Map parameterMap, Map<String,String> eventClassMap, Map eventMap, FlowBaseEvent startEvent) {
         Gson gson = gsonBuilder.create();
         Event event = gson.fromJson(text, Event.class);
         String eventsJson = gson.toJson(event.getEvents());

@@ -1,13 +1,14 @@
 package com.github.cola.flow.engine.event;
 
 import com.github.cola.flow.client.constants.Constants;
-import com.github.cola.flow.client.event.FlowFlowBaseEvent;
+import com.github.cola.flow.client.baseevent.FlowBaseEvent;
 import com.alibaba.cola.common.ApplicationContextHelper;
 import com.alibaba.cola.event.EventBus;
 import lombok.extern.slf4j.Slf4j;
 import com.github.cola.flow.client.dto.event.EventEntity;
 import com.github.cola.flow.client.dto.event.Event;
-import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.StringUtils;
+
 import java.util.List;
 import java.util.Objects;
 
@@ -18,7 +19,7 @@ import java.util.Objects;
  * @author xihadoufuche@aliyun.com
  */
 @Slf4j
-public class FlowEventChangeHandler<ET extends EventEntity, E extends FlowFlowBaseEvent> implements FlowEventChangeListener<ET, E> {
+public class FlowEventChangeHandler<ET extends EventEntity, E extends FlowBaseEvent> implements FlowEventChangeListener<ET, E> {
     private FlowEventController<ET, E> flowEventController;
 
     /**

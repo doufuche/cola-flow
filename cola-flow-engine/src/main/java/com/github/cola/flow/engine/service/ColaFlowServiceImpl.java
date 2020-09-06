@@ -1,16 +1,16 @@
 package com.github.cola.flow.engine.service;
 
+import com.alibaba.cola.event.EventBusI;
 import com.github.cola.flow.client.api.ColaFlowServiceI;
 import com.github.cola.flow.client.constants.Constants;
-import com.github.cola.flow.client.dto.domainmodel.EventFlowInfoBySuspendQry;
+import com.github.cola.flow.client.dto.domainevent.EventFlowInfoBySuspendQryEvent;
 import com.github.cola.flow.client.dto.event.Event;
-import com.github.cola.flow.client.event.FlowFlowBaseEvent;
+import com.github.cola.flow.client.baseevent.FlowBaseEvent;
 import com.github.cola.flow.engine.event.FlowEventEngine;
 import com.github.cola.flow.engine.event.tree.EventTreeConvert;
 import com.github.cola.flow.engine.event.tree.ManyFlowEventTreeNode;
 import com.github.cola.flow.engine.event.tree.FlowEventTreeNode;
 import com.github.cola.flow.engine.event.tree.EventTreeNodeConvert;
-import com.alibaba.cola.command.CommandBusI;
 import com.alibaba.cola.dto.SingleResponse;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -38,16 +38,16 @@ import java.util.Objects;
  */
 @Slf4j
 @Service
-public class ColaFlowServiceImpl<E extends FlowFlowBaseEvent> implements ColaFlowServiceI {
+public class ColaFlowServiceImpl<E extends FlowBaseEvent> implements ColaFlowServiceI {
     /**
      *
      */
     @Autowired
-    private CommandBusI commandBus;
+    private EventBusI eventBusI;
 
     /**
      * 流程节点名称对应类，demo如下：
-     * {"StartEvent":"com.github.cola.flow.client.event.StartEvent","EndEvent":"com.github.cola.flow.client.event.EndEvent"}
+     * {"StartEvent":"com.github.cola.flow.client.baseevent.StartEvent","EndEvent":"com.github.cola.flow.client.baseevent.EndEvent"}
      */
     @Value("${eventFlow.classes.config}")
     private String eventFlowClasses;
@@ -61,7 +61,7 @@ public class ColaFlowServiceImpl<E extends FlowFlowBaseEvent> implements ColaFlo
     private Gson gson = new GsonBuilder().create();
 
     @Override
-    public void init(final FlowFlowBaseEvent startEvent, final String eventFlowInfo) throws Exception {
+    public void init(final FlowBaseEvent startEvent, final String eventFlowInfo) throws Exception {
 
         E thisEvent = (E) startEvent;
         Event<ManyFlowEventTreeNode, E> event = buildEventByInterrupt(thisEvent);
@@ -103,7 +103,7 @@ public class ColaFlowServiceImpl<E extends FlowFlowBaseEvent> implements ColaFlo
 
     /**
      * Continue the process from the pause node specified by the input parameter
-     * @param event The eventName in the event represents the name of the node that has just been executed
+     * @param event The eventName in the baseevent represents the name of the node that has just been executed
      * @throws Exception
      */
     @Override
@@ -112,7 +112,7 @@ public class ColaFlowServiceImpl<E extends FlowFlowBaseEvent> implements ColaFlo
     }
 
     @Override
-    public void continueEventFlow(final FlowFlowBaseEvent suspendEvent) throws Exception {
+    public void continueEventFlow(final FlowBaseEvent suspendEvent) throws Exception {
         String thisClassName = suspendEvent.getClass().getName();
         String suspendEventName = thisClassName.substring(thisClassName.lastIndexOf(".")+1);
         String bizId = suspendEvent.getBizId().toString();
@@ -139,7 +139,7 @@ public class ColaFlowServiceImpl<E extends FlowFlowBaseEvent> implements ColaFlo
     }
 
     @Override
-    public final void errorFlowContinue(final FlowFlowBaseEvent errorEvent) throws Exception {
+    public final void errorFlowContinue(final FlowBaseEvent errorEvent) throws Exception {
         String thisClassName = errorEvent.getClass().getName();
         String eventName = thisClassName.substring(thisClassName.lastIndexOf(".")+1);
         String bizId = errorEvent.getBizId().toString();
@@ -201,7 +201,7 @@ public class ColaFlowServiceImpl<E extends FlowFlowBaseEvent> implements ColaFlo
      * @throws InvocationTargetException exception
      * @throws NoSuchMethodException exception
      */
-    private void setStartEventWhenError(final FlowFlowBaseEvent sourceEvent, final Event targetEvent) throws ClassNotFoundException, InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+    private void setStartEventWhenError(final FlowBaseEvent sourceEvent, final Event targetEvent) throws ClassNotFoundException, InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
         Class catClass = Class.forName(sourceEvent.getFlowEventClassMap().get(Constants.START_EVENT).toString());
         if (catClass!=null) {
             Object obj = catClass.newInstance();
@@ -216,7 +216,7 @@ public class ColaFlowServiceImpl<E extends FlowFlowBaseEvent> implements ColaFlo
 
     /**
      * set properties to StartEvent
-     * @param targetEvent target event
+     * @param targetEvent target baseevent
      * @param startEventInstance instance
      * @param startEventPropertiesMap
      * @throws IllegalAccessException
@@ -271,7 +271,7 @@ public class ColaFlowServiceImpl<E extends FlowFlowBaseEvent> implements ColaFlo
 
     /**
      *
-     * @param eventName Interrupt event name
+     * @param eventName Interrupt baseevent name
      * @param bizId business id
      * @param events continue events
      * @return
@@ -298,10 +298,10 @@ public class ColaFlowServiceImpl<E extends FlowFlowBaseEvent> implements ColaFlo
     }
 
     private Event getEventBySuspendQry(String suspendEventName, String bizId) {
-        EventFlowInfoBySuspendQry eventFlowInfoBySuspendQry = new EventFlowInfoBySuspendQry();
-        eventFlowInfoBySuspendQry.setBizId(bizId);
-        eventFlowInfoBySuspendQry.setEventName(suspendEventName);
-        SingleResponse eventFlowInfoResponse = (SingleResponse) commandBus.send(eventFlowInfoBySuspendQry);
+        EventFlowInfoBySuspendQryEvent eventFlowInfoBySuspendQryEvent = new EventFlowInfoBySuspendQryEvent();
+        eventFlowInfoBySuspendQryEvent.setBizId(bizId);
+        eventFlowInfoBySuspendQryEvent.setEventName(suspendEventName);
+        SingleResponse eventFlowInfoResponse = (SingleResponse) eventBusI.fire(eventFlowInfoBySuspendQryEvent);
 
         Event event = null;
         if (eventFlowInfoResponse!=null && eventFlowInfoResponse.isSuccess()) {

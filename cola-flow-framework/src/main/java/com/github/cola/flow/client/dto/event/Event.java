@@ -1,6 +1,6 @@
 package com.github.cola.flow.client.dto.event;
 
-import com.github.cola.flow.client.event.FlowFlowBaseEvent;
+import com.github.cola.flow.client.baseevent.FlowBaseEvent;
 import lombok.Data;
 import java.util.*;
 
@@ -11,7 +11,7 @@ import java.util.*;
  * @author xihadoufuche@aliyun.com
  */
 @Data
-public class Event<ET extends EventEntity, E extends FlowFlowBaseEvent> {
+public class Event<ET extends EventEntity, E extends FlowBaseEvent> {
     /**
      * 業務id
      */
@@ -41,7 +41,7 @@ public class Event<ET extends EventEntity, E extends FlowFlowBaseEvent> {
     /**
      * 开始节点
      */
-    private FlowFlowBaseEvent startEvent;
+    private FlowBaseEvent startEvent;
     /**
      * 該event是否異步執行
      */

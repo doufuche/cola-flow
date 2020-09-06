@@ -1,6 +1,6 @@
 package com.github.cola.flow.engine.event;
 
-import com.github.cola.flow.client.event.FlowFlowBaseEvent;
+import com.github.cola.flow.client.baseevent.FlowBaseEvent;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.github.cola.flow.client.dto.event.EventEntity;
@@ -16,7 +16,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  *
  * @author xihadoufuche@aliyun.com
  */
-public class FlowEventController<ET extends EventEntity, E extends FlowFlowBaseEvent> {
+public class FlowEventController<ET extends EventEntity, E extends FlowBaseEvent> {
     Gson newGson = new GsonBuilder().create();
     private Event<ET, E> eteEvent;
     private BlockingQueue<FlowEventChangeListener<ET, E>> flowEventChangeListeners = new LinkedBlockingQueue<FlowEventChangeListener<ET, E>>();
@@ -26,7 +26,7 @@ public class FlowEventController<ET extends EventEntity, E extends FlowFlowBaseE
         this.eteEvent = eteEvent;
     }
 
-    public static <ET extends EventEntity,C extends FlowFlowBaseEvent> FlowEventController newInstance(Event<ET,C> etcEvent) {
+    public static <ET extends EventEntity,C extends FlowBaseEvent> FlowEventController newInstance(Event<ET,C> etcEvent) {
         FlowEventController flowEventController = new FlowEventController(etcEvent);
         flowEventController.addListener(new FlowEventChangeHandler<>(flowEventController));
         return flowEventController;
