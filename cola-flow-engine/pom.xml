@@ -10,9 +10,42 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>cola-flow-engine</artifactId>
-    <version>${cola.flow.framework.version}</version>
     <name>cola-flow-engine</name>
     <packaging>jar</packaging>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>sonatype-nexus-snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>sonatype-nexus-staging</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
+
+    <licenses>
+        <license>
+            <name>GNU Lesser General Public License v2.1</name>
+            <url>https://github.com/doufuche/cola-flow/blob/master/LICENSE</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:git:https://github.com/doufuche/cola-flow.git</connection>
+        <developerConnection>scm:git:https://github.com/doufuche/cola-flow.git</developerConnection>
+        <url>https://github.com/doufuche/cola-flow</url>
+    </scm>
+
+    <developers>
+        <developer>
+            <id>doufuche</id>
+            <name>doufuche</name>
+            <email>314145951@qq.com</email>
+        </developer>
+    </developers>
+
 
     <properties>
         <java.version>1.8</java.version>
