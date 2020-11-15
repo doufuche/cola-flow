@@ -1,16 +1,16 @@
-package com.github.cola.flow.client.dto.domainevent;
+package com.github.cola.flow.client.dto.domainevent.query;
 
 import com.alibaba.cola.event.DomainEventI;
 import lombok.Data;
 
 /**
  * Project Name: cola-flow
- * Desc: 判断节点是否执行完成
+ * Desc: 查询该业务暂停时保存的eventFlow信息
  *
  * @author xihadoufuche@aliyun.com
  */
 @Data
-public class EventStateFinishCheckQryEvent implements DomainEventI {
+public class EventFlowInfoBySuspendQryEvent implements DomainEventI {
     /**
      * 业务id
      */

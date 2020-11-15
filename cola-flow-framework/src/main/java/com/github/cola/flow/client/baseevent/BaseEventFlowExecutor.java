@@ -1,8 +1,11 @@
 package com.github.cola.flow.client.baseevent;
 
+import com.alibaba.cola.exception.BizException;
 import com.github.cola.flow.client.api.ColaFlowServiceI;
 import com.github.cola.flow.client.constants.Constants;
 import com.github.cola.flow.client.dto.domainevent.*;
+import com.github.cola.flow.client.dto.domainevent.query.BizCancelledQryEvent;
+import com.github.cola.flow.client.dto.domainevent.query.EventStateFinishCheckQryEvent;
 import com.github.cola.flow.client.dto.event.Event;
 import com.alibaba.cola.event.EventBusI;
 import com.alibaba.cola.common.ApplicationContextHelper;
@@ -16,6 +19,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+
+import java.util.Objects;
 
 /** .
  * Project Name: cola-flow
@@ -68,7 +73,7 @@ public abstract class BaseEventFlowExecutor<R extends Response, E extends FlowBa
         eventStateFinishCheck(eventName, bizId);
 
         //check bizId state suspend or cancel
-        if (checkBizCancelled(response, eventName, bizId)){
+        if (checkAndSuspend(response, eventName, bizId)){
             return response;
         }
 
@@ -116,19 +121,30 @@ public abstract class BaseEventFlowExecutor<R extends Response, E extends FlowBa
      * @param bizId
      * @return
      */
-    private boolean checkBizCancelled(final R response, final String eventName, final Long bizId) {
+    private boolean checkAndSuspend(final R response, final String eventName, final Long bizId) {
         BizCancelledQryEvent bizCancelledQryEvent = new BizCancelledQryEvent();
         bizCancelledQryEvent.setBizId(bizId.toString());
         R bizCancelQryResponse = (R) eventBusI.fire(bizCancelledQryEvent);
         if (bizCancelQryResponse != null && bizCancelQryResponse.isSuccess()) {
-            log.warn("{} Consumer execute redirect finished. bizId:{}", eventName, bizId);
+            log.info("{} Consumer execute redirect finished. bizId:{}", eventName, bizId);
             bizCanceledHandler(bizId);
             response.setSuccess(false);
             response.setErrMessage("the bizId is cancelled!,bizId:"+bizId);
             return true;
         }
         //suspend check
-        checkOrderAndSuspend(bizId, eventName);
+        if(checkOrderAndSuspend(bizId, eventName)){
+            EventFlowSuspendUpdateEvent eventFlowSuspendUpdateEvent = new EventFlowSuspendUpdateEvent();
+            eventFlowSuspendUpdateEvent.setBizId(bizId.toString());
+            Response suspendUpdateResponse = eventBusI.fire(eventFlowSuspendUpdateEvent);
+            log.info("{} suspendUpdateResponse{} bizId:{}", eventName, suspendUpdateResponse, bizId);
+            if(Objects.isNull(suspendUpdateResponse) || !suspendUpdateResponse.isSuccess()){
+                throw new BizException(bizId+"eventFlowSuspendUpdateEvent is error!");
+            }
+            response.setSuccess(false);
+            response.setErrMessage("this is suspendUpdateResponse!,bizId:"+bizId);
+            return true;
+        };
         return false;
     }
 
@@ -260,17 +276,14 @@ public abstract class BaseEventFlowExecutor<R extends Response, E extends FlowBa
      * @param bizId
      * @throws Exception
      */
-    private void checkOrderAndSuspend(final Long bizId, final String eventName){
+    private boolean checkOrderAndSuspend(final Long bizId, final String eventName){
         boolean isSuspendEvent = false;
         //check node is suspendEvent
         if (isSuspendByEventName(eventName)){
+            log.warn("checkOrderAndSuspend true!, bizId:{}, eventName:{}", bizId, eventName);
             isSuspendEvent = true;
         }
-
-        if (isSuspendEvent) {
-            log.warn("checkOrderAndSuspend true!, bizId:{}, eventName:{}", bizId, eventName);
-            throw new RuntimeException("checkOrderAndSuspend true!, bizId:" + bizId + ", eventName:" + eventName);
-        }
+        return isSuspendEvent;
     }
 
     /**

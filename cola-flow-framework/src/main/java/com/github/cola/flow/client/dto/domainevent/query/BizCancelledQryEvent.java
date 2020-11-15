@@ -1,4 +1,4 @@
-package com.github.cola.flow.client.dto.domainevent;
+package com.github.cola.flow.client.dto.domainevent.query;
 
 import com.alibaba.cola.event.DomainEventI;
 import lombok.Data;

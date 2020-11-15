@@ -3,7 +3,7 @@ package com.github.cola.flow.engine.service;
 import com.alibaba.cola.event.EventBusI;
 import com.github.cola.flow.client.api.ColaFlowServiceI;
 import com.github.cola.flow.client.constants.Constants;
-import com.github.cola.flow.client.dto.domainevent.EventFlowInfoBySuspendQryEvent;
+import com.github.cola.flow.client.dto.domainevent.query.EventFlowInfoBySuspendQryEvent;
 import com.github.cola.flow.client.dto.event.Event;
 import com.github.cola.flow.client.baseevent.FlowBaseEvent;
 import com.github.cola.flow.engine.event.FlowEventEngine;
