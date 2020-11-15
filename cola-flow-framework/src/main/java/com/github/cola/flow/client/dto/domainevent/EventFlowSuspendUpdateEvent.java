@@ -15,4 +15,12 @@ public class EventFlowSuspendUpdateEvent implements DomainEventI {
      * 业务id
      */
     private String bizId;
+    /**
+     * 流程节点名
+     */
+    private String eventName;
+    /**
+     * 流程信息
+     */
+    private String flowInfo;
 }

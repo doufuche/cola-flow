@@ -73,7 +73,7 @@ public abstract class BaseEventFlowExecutor<R extends Response, E extends FlowBa
         eventStateFinishCheck(eventName, bizId);
 
         //check bizId state suspend or cancel
-        if (checkAndSuspend(response, eventName, bizId)){
+        if (checkAndSuspend(response, eventName, bizId, event)){
             return response;
         }
 
@@ -121,7 +121,7 @@ public abstract class BaseEventFlowExecutor<R extends Response, E extends FlowBa
      * @param bizId
      * @return
      */
-    private boolean checkAndSuspend(final R response, final String eventName, final Long bizId) {
+    private boolean checkAndSuspend(final R response, final String eventName, final Long bizId, final Event event) {
         BizCancelledQryEvent bizCancelledQryEvent = new BizCancelledQryEvent();
         bizCancelledQryEvent.setBizId(bizId.toString());
         R bizCancelQryResponse = (R) eventBusI.fire(bizCancelledQryEvent);
@@ -136,6 +136,9 @@ public abstract class BaseEventFlowExecutor<R extends Response, E extends FlowBa
         if(checkOrderAndSuspend(bizId, eventName)){
             EventFlowSuspendUpdateEvent eventFlowSuspendUpdateEvent = new EventFlowSuspendUpdateEvent();
             eventFlowSuspendUpdateEvent.setBizId(bizId.toString());
+            eventFlowSuspendUpdateEvent.setEventName(eventName);
+            String eventsJson = gson.toJson(event);
+            eventFlowSuspendUpdateEvent.setFlowInfo(eventsJson);
             Response suspendUpdateResponse = eventBusI.fire(eventFlowSuspendUpdateEvent);
             log.info("{} suspendUpdateResponse{} bizId:{}", eventName, suspendUpdateResponse, bizId);
             if(Objects.isNull(suspendUpdateResponse) || !suspendUpdateResponse.isSuccess()){
