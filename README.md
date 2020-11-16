@@ -1,6 +1,7 @@
 # cola-flow
 站在前辈的肩膀上眺望远方，cola框架https://github.com/alibaba/COLA  
 本代碼庫是在cola框架基礎上實現的流程編排引擎和組件，最新版是基于cola3.0的版本；
+本代码库是底层引擎，应用代码见https://github.com/doufuche/cola-flow-server
 
 簡單描述下背景  
 COLA是DDD領域驅動框架，提供了DDD、CQRS、擴展點等功能和規範，具有很好的學習和使用價值  
@@ -17,3 +18,4 @@ COLA是DDD領域驅動框架，提供了DDD、CQRS、擴展點等功能和規範
 4，實現節點Event和流程鏈的管理，後續可實現動態調整或新增節點Event，以快速支持不同行業（業務場景）的目的  
 
 架構設計和使用姿勢待後續補充
+
