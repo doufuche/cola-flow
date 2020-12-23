@@ -24,5 +24,5 @@ COLA是DDD領域驅動框架，提供了DDD、CQRS、擴展點等功能和規範
 
 ## 流程引擎核心设计  
 
-![image](https://github.com/doufuche/cola-flow/blob/master/imagesForReadme/flow3.png)    
+![image](https://github.com/doufuche/cola-flow/blob/master/imagesForReadme/flow3.jpg)    
 
