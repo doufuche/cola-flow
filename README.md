@@ -17,5 +17,12 @@ COLA是DDD領域驅動框架，提供了DDD、CQRS、擴展點等功能和規範
 3，抽象業務身份和節點Event的關係，通過業務身份去串聯節點Event流程鏈  
 4，實現節點Event和流程鏈的管理，後續可實現動態調整或新增節點Event，以快速支持不同行業（業務場景）的目的  
 
-架構設計和使用姿勢待後續補充
+
+## 系统架构图.  
+
+![image](https://github.com/doufuche/cola-flow-server/blob/main/imagesForReadme/flow1.png)    
+
+## 流程引擎核心设计  
+
+![image](https://github.com/doufuche/cola-flow-server/blob/main/imagesForReadme/flow2.png)    
 
